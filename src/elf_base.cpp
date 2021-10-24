@@ -14,6 +14,14 @@ const uint8_t* image_headers::base() const {
     return m_base;
 }
 
+file_identification image_headers::identification() const {
+    return m_header->identification;
+}
+
+machine_type image_headers::machine() const {
+    return m_header->machine;
+}
+
 const section_header64* image_headers::section_headers() const {
     return reinterpret_cast<const section_header64*>(m_base + m_header->section_header_offset);
 }

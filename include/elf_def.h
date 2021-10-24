@@ -177,14 +177,6 @@ enum section_type : uint32_t {
     SECTION_DYNSYM = 11
 };
 
-enum section_flag : uint32_t {
-    SECTION_FLAGS_WRITE = 0x1,
-    SECTION_FLAGS_ALLOC = 0x2,
-    SECTION_FLAGS_EXECINSTR = 0x4,
-    SECTION_FLAGS_RELA_LIVEPATCH = 0x00100000,
-    SECTION_FLAGS_RO_AFTER_INIT = 0x00200000
-};
-
 union section_flags32 {
     uint32_t data;
     struct {
@@ -194,7 +186,7 @@ union section_flags32 {
         uint32_t reserved0 : 16;
         uint32_t rela_livepatch : 1;
         uint32_t ro_after_init : 1;
-    };
+    } bits;
 };
 static_assert(sizeof(section_flags32) == 4, "section_flags32 size");
 

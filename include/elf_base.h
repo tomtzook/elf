@@ -11,6 +11,9 @@ public:
 
     const uint8_t* base() const;
 
+    file_identification identification() const;
+    machine_type machine() const;
+
     const section_header64* section_headers() const;
     size_t section_count() const;
     size_t name_section_index() const;

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <elf.h>
+#include <debug.h>
 
 
 
@@ -17,7 +18,17 @@ int main() {
     std::vector<char> buffer(fileSize);
     file.read(buffer.data(), fileSize);
 
-    auto header = reinterpret_cast<const elf::header64*>(buffer.data());
+    elf::image image(buffer.data());
+    std::cout << image << std::endl;
+
+    for (auto section : image.sections()) {
+        std::cout << "SECTION:" << std::endl
+                  << "\tName: " << image.sections().names()[section.name_offset()] << std::endl
+                  << "\tType: " << section.type() << std::endl
+                  << "\tFlags: " << section.flags() << std::endl;
+    }
+
+    /*auto header = reinterpret_cast<const elf::header64*>(buffer.data());
 
     for (int i = 0; i < sizeof(elf::file_identification); i++) {
         std::cout << "0x"
@@ -43,5 +54,5 @@ int main() {
             << "\tName: " << image.sections().names()[section.name_offset()] << std::endl
             << "\tType: " << std::hex << section.type() << std::endl
             << "\tFlags: " << std::hex << section.flags().data << std::endl;
-    }
+    }*/
 }
