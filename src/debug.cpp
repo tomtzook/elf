@@ -128,6 +128,30 @@ std::ostream& operator<<(std::ostream& os, const elf::image& image) {
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const elf::program_type& type) {
+    switch (type) {
+        case elf::program_type::PROGRAM_NONE: os << "PROGRAM_NONE"; break;
+        case elf::program_type::PROGRAM_LOAD: os << "PROGRAM_LOAD"; break;
+        case elf::program_type::PROGRAM_DYNAMIC: os << "PROGRAM_DYNAMIC"; break;
+        case elf::program_type::PROGRAM_INTERP: os << "SECTION_STRTAB"; break;
+        case elf::program_type::PROGRAM_NOTE: os << "PROGRAM_NOTE"; break;
+        case elf::program_type::PROGRAM_SHLIB: os << "PROGRAM_SHLIB"; break;
+        case elf::program_type::PROGRAM_PHDR: os << "PROGRAM_PHDR"; break;
+        case elf::program_type::PROGRAM_TLS: os << "PROGRAM_TLS"; break;
+    }
+
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const elf::program_flags& flags) {
+    bool has = false;
+    FLAG_BIT_DEBUG(flags.bits.execute, "EXECUTE");
+    FLAG_BIT_DEBUG(flags.bits.write, "WRITE");
+    FLAG_BIT_DEBUG(flags.bits.read, "READ");
+
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const elf::section_type& type) {
     switch (type) {
         case elf::section_type::SECTION_NONE: os << "SECTION_NONE"; break;
@@ -147,7 +171,7 @@ std::ostream& operator<<(std::ostream& os, const elf::section_type& type) {
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const elf::section_flags32& flags) {
+std::ostream& operator<<(std::ostream& os, const elf::section_flags& flags) {
     bool has = false;
     FLAG_BIT_DEBUG(flags.bits.write, "WRITE");
     FLAG_BIT_DEBUG(flags.bits.alloc, "ALLOC");

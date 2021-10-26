@@ -98,7 +98,7 @@ enum machine_type : uint16_t {
 struct header32 {
     file_identification identification;
     file_type type;
-    uint16_t machine;
+    machine_type machine;
     uint32_t version;
     uint32_t entry_address;
     uint32_t program_header_offset;
@@ -140,6 +140,16 @@ enum program_type : uint32_t {
     PROGRAM_TLS = 7
 };
 
+union program_flags {
+    uint32_t data;
+    struct {
+        uint32_t execute : 1;
+        uint32_t write : 1;
+        uint32_t read : 1;
+    } bits;
+};
+static_assert(sizeof(program_flags) == 4, "program_flags size");
+
 struct program_header32 {
     program_type type;
     uint32_t offset;
@@ -147,13 +157,13 @@ struct program_header32 {
     uint32_t physical_address;
     uint32_t size_in_file;
     uint32_t size_in_memory;
-    uint32_t flags;
+    program_flags flags;
     uint32_t align;
 };
 
 struct program_header64 {
     program_type type;
-    uint32_t flags;
+    program_flags flags;
     uint64_t offset;
     uint64_t virtual_address;
     uint64_t physical_address;
@@ -177,7 +187,7 @@ enum section_type : uint32_t {
     SECTION_DYNSYM = 11
 };
 
-union section_flags32 {
+union section_flags {
     uint32_t data;
     struct {
         uint32_t write : 1;
@@ -188,12 +198,12 @@ union section_flags32 {
         uint32_t ro_after_init : 1;
     } bits;
 };
-static_assert(sizeof(section_flags32) == 4, "section_flags32 size");
+static_assert(sizeof(section_flags) == 4, "section_flags32 size");
 
 union section_flags64 {
     uint64_t data;
     struct {
-        section_flags32 low;
+        section_flags low;
         uint32_t high : 32;
     } ;
 };
@@ -202,7 +212,7 @@ static_assert(sizeof(section_flags64) == 8, "section_flags64 size");
 struct section_header32 {
     uint32_t name;
     section_type type;
-    section_flags32 flags;
+    section_flags flags;
     uint32_t address;
     uint32_t offset;
     uint32_t size;

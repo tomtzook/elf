@@ -1,21 +1,17 @@
 #pragma once
 
-#include <cstddef>
-#include <iterator>
-
 #include "elf_def.h"
 #include "elf_base.h"
 
 
 namespace elf {
 
-class section {
+class program {
 public:
-    section(const image_headers& image, const void* header);
+    program(const image_headers& image, const void* header);
 
-    size_t name_offset() const;
-    section_type type() const;
-    section_flags flags() const;
+    program_type type() const;
+    program_flags flags() const;
     size_t size() const;
 
     const void* data() const;
@@ -26,27 +22,17 @@ public:
 
 private:
     const image_headers& m_image;
-    const section_header32* m_header32;
-    const section_header64* m_header64;
+    const program_header32* m_header32;
+    const program_header64* m_header64;
 };
 
-class name_section : public section {
-public:
-    name_section(const image_headers& image, const void* header);
-
-    const char* operator[](size_t index) const;
-
-private:
-    const char* m_str_table;
-};
-
-class image_sections {
+class image_programs {
 public:
     class iterator {
     public:
-        using value_type = section;
-        using reference = section;
-        using pointer = section;
+        using value_type = program;
+        using reference = program;
+        using pointer = program;
         using iterator_category = std::bidirectional_iterator_tag;
 
         iterator(const image_headers& image, const void* header);
@@ -62,17 +48,14 @@ public:
 
     private:
         const image_headers& m_image;
-        const uint8_t * m_header;
+        const uint8_t* m_header;
     };
 
-    explicit image_sections(const image_headers& image);
+    explicit image_programs(const image_headers& image);
 
     size_t count() const;
 
-    const name_section& names() const;
-
-    section operator[](const char* name) const;
-    section operator[](size_t index) const;
+    program operator[](size_t index) const;
 
     iterator begin() const;
     iterator end() const;
@@ -80,7 +63,6 @@ public:
 private:
     const image_headers& m_image;
     const uint8_t* m_headers;
-    class name_section m_name_section;
 };
 
 }

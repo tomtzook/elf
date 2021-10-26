@@ -5,30 +5,55 @@
 
 namespace elf {
 
-section::section(const image_headers& image, const section_header64* header)
+section::section(const image_headers& image, const void* header)
     : m_image(image)
-    , m_header(header) {
+    , m_header32(reinterpret_cast<const section_header32*>(header))
+    , m_header64(reinterpret_cast<const section_header64*>(header)) {
 }
 
 size_t section::name_offset() const {
-    return m_header->name;
+    switch (m_image.identification().fclass) {
+        case FILE_CLASS_CLASS32: return m_header32->name;
+        case FILE_CLASS_CLASS64: return m_header64->name;
+        default: throw std::exception();
+    }
 }
 
 section_type section::type() const {
-    return m_header->type;
+    switch (m_image.identification().fclass) {
+        case FILE_CLASS_CLASS32: return m_header32->type;
+        case FILE_CLASS_CLASS64: return m_header64->type;
+        default: throw std::exception();
+    }
 }
 
-section_flags64 section::flags() const {
-    return m_header->flags;
+section_flags section::flags() const {
+    switch (m_image.identification().fclass) {
+        case FILE_CLASS_CLASS32: return m_header32->flags;
+        case FILE_CLASS_CLASS64: return m_header64->flags.low;
+        default: throw std::exception();
+    }
+}
+
+size_t section::size() const {
+    switch (m_image.identification().fclass) {
+        case FILE_CLASS_CLASS32: return m_header32->size;
+        case FILE_CLASS_CLASS64: return m_header64->size;
+        default: throw std::exception();
+    }
 }
 
 const void* section::data() const {
-    return m_image.base() + m_header->offset;
+    switch (m_image.identification().fclass) {
+        case FILE_CLASS_CLASS32: return m_image.base() + m_header32->offset;
+        case FILE_CLASS_CLASS64: return m_image.base() + m_header64->offset;
+        default: throw std::exception();
+    }
 }
 
-name_section::name_section(const image_headers& image, const section_header64* header)
+name_section::name_section(const image_headers& image, const void* header)
     : section(image, header)
-    , m_str_table(reinterpret_cast<const char*>(image.base() + header->offset)) {
+    , m_str_table(data<char>()) {
 
 }
 
@@ -36,17 +61,17 @@ const char* name_section::operator[](size_t index) const {
     return m_str_table + index;
 }
 
-image_sections::iterator::iterator(const image_headers& image, const section_header64* header)
+image_sections::iterator::iterator(const image_headers& image, const void* header)
         : m_image(image)
-        , m_header(header)
+        , m_header(reinterpret_cast<const uint8_t*>(header))
 {}
 
 image_sections::iterator& image_sections::iterator::operator++() {
-    m_header++;
+    m_header += m_image.section_header_size();
     return *this;
 }
 image_sections::iterator& image_sections::iterator::operator--() {
-    m_header--;
+    m_header -= m_image.section_header_size();
     return *this;
 }
 
@@ -66,8 +91,8 @@ bool image_sections::iterator::operator!=(const iterator& rhs) {
 
 image_sections::image_sections(const image_headers& image)
         : m_image(image)
-        , m_headers(image.section_headers())
-        , m_name_section(image, header(image.name_section_index()))
+        , m_headers(reinterpret_cast<const uint8_t*>(image.section_headers()))
+        , m_name_section(image, m_headers + (image.name_section_index() * m_image.section_header_size()))
 {}
 
 size_t image_sections::count() const {
@@ -89,18 +114,14 @@ section image_sections::operator[](const char* name) const {
 }
 
 section image_sections::operator[](size_t index) const {
-    return section(m_image, header(index));
+    return {m_image, m_headers + (index * m_image.section_header_size())};
 }
 
 image_sections::iterator image_sections::begin() const {
-    return iterator(m_image, m_headers);
+    return {m_image, m_headers};
 }
 image_sections::iterator image_sections::end() const {
-    return iterator(m_image, m_headers + count());
-}
-
-const section_header64* image_sections::header(size_t index) const {
-    return m_headers + index;
+    return {m_image, m_headers + (count() * m_image.section_header_size())};
 }
 
 }

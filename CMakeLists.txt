@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(elf STATIC
         src/elf.cpp
         src/section.cpp
-        src/elf_base.cpp src/debug.cpp)
+        src/elf_base.cpp src/debug.cpp src/program.cpp)
 target_include_directories(elf PUBLIC include)
 
 

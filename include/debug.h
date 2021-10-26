@@ -5,6 +5,7 @@
 #include "elf_def.h"
 #include "elf_base.h"
 #include "elf.h"
+#include "program.h"
 #include "section.h"
 
 
@@ -16,7 +17,10 @@ std::ostream& operator<<(std::ostream& os, const elf::machine_type& type);
 std::ostream& operator<<(std::ostream& os, const elf::image_headers& headers);
 std::ostream& operator<<(std::ostream& os, const elf::image& image);
 
+std::ostream& operator<<(std::ostream& os, const elf::program_type& type);
+std::ostream& operator<<(std::ostream& os, const elf::program_flags& flags);
+
 std::ostream& operator<<(std::ostream& os, const elf::section_type& type);
-std::ostream& operator<<(std::ostream& os, const elf::section_flags32& flags);
+std::ostream& operator<<(std::ostream& os, const elf::section_flags& flags);
 std::ostream& operator<<(std::ostream& os, const elf::section_flags64& flags);
 
